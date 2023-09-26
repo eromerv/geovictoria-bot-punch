@@ -67,7 +67,7 @@ axiosRetry(axiosInstance, {
 
         // Punch Salida or Ingreso
         var punchType = lastPunchType === 'Salida' ? 'Ingreso' : 'Salida';
-        var savePunchUrl = `/SaveUserPunch/?${vsk}&punchType=${punchType}&groupId=${groupId}`;
+        var savePunchUrl = `/SaveUserPunch?${vsk}&punchType=${punchType}&groupId=${groupId}`;
         console.log(savePunchUrl);
         // await axiosInstance.get(savePunchUrl); //DESCOMENTAR PARA REGISTRAR PUNCH
         // page.reload();
