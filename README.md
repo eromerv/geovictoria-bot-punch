@@ -16,7 +16,7 @@ Por defecto, está configurado con `headless: false`, lo que significa que levan
 
 ```bash
 # Para registrar el marcaje en Geovictoria, se debe descomentar la línea 47 del código.
-await axios.get(savePunchUrl);
+await axiosInstance.get(savePunchUrl);
 ```
 
 ### How to Run

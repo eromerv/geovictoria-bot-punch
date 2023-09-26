@@ -1,54 +1,85 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const axios = require('axios');
+const axiosRetry = require('axios-retry');
 
-const WEB_PUNCH_API = process.env.WEB_PUNCH_API;
+// Axios instance
+const axiosInstance = axios.create({
+  baseURL: process.env.WEB_PUNCH_API,
+});
 
+// Configure retries
+axiosRetry(axiosInstance, {
+  retries: 3,
+  retryDelay: (retryCount) => {
+    return retryCount * 1000;
+  },
+  retryCondition: (error) => {
+    //1: Check if response.data is undefined
+    const isDataUndefined = error.response && error.response.data === undefined;
+
+    //2: Check for 5xx server errors
+    const isServerError = error.response && error.response.status >= 500;
+
+    //3: Check for network errors
+    const isNetworkError = !error.response;
+
+    return isDataUndefined || isServerError || isNetworkError;
+  },
+});
+
+// Main
 (async () => {
   const browser = await puppeteer.launch({
     headless: false,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=800,600'],
     defaultViewport: null,
   });
-  const page = await browser.newPage();
 
-  await page.goto(process.env.LOGIN_PAGE_URL);
+  try {
+    const page = await browser.newPage();
+    await page.goto(process.env.LOGIN_PAGE_URL);
 
-  await page.type('#user', process.env.GEO_USERNAME);
-  await page.type('#password', process.env.GEO_PASSWORD);
+    await page.type('#user', process.env.GEO_USERNAME);
+    await page.type('#password', process.env.GEO_PASSWORD);
+    await page.click('#btnLogin');
 
-  await page.click('#btnLogin');
-  await page.waitForSelector('#content');
+    await page.waitForSelector('#main');
 
-  await delay(5000);
+    await delay(5000);
 
-  await page.waitForSelector('iframe[name="myFrame"]');
-  const frame = page.frames().find((frame) => frame.name() == 'myFrame');
+    await page.waitForSelector('iframe[name="myFrame"]');
+    const frame = page.frames().find((frame) => frame.name() == 'myFrame');
 
-  if (!frame) {
-    console.error('Frame not found!');
-    await browser.close();
-    return;
-  }
-  const vsk = frame.url().split('&').pop();
-  if (vsk) {
-    
-    const webPunchUrl = `${WEB_PUNCH_API}/GetWebPunch?${vsk}`;
-    console.log(webPunchUrl);
-    const response = await axios.get(webPunchUrl);
-    if(response.status === 200 && response.data) {
-      console.log(response.data);
-      const { groupId, lastPunchType } = response.data;
-      
-      // Punch Salida or Entrada
-      var punchType = lastPunchType === 'Salida' ? 'Ingreso' : 'Salida';
-      var savePunchUrl = `${WEB_PUNCH_API}/SaveUserPunch/?${vsk}&punchType=${punchType}&groupId=${groupId}`;
-      console.log(savePunchUrl)
-      //await axios.get(savePunchUrl); //DESCOMENTAR PARA GUARDAR PUNCH
-      //page.reload();
+    if (!frame) {
+      console.error('Frame not found.');
+      await browser.close();
+      return;
     }
+    const vsk = frame.url().split('&').pop();
+    if (vsk) {
+      const webPunchUrl = `/GetWebPunch?${vsk}`;
+      console.log(webPunchUrl);
+      const response = await axiosInstance.get(webPunchUrl);
+      if (response.status === 200 && response.data) {
+        console.log(response.data);
+        const { groupId, lastPunchType } = response.data;
+
+        // Punch Salida or Ingreso
+        var punchType = lastPunchType === 'Salida' ? 'Ingreso' : 'Salida';
+        var savePunchUrl = `/SaveUserPunch/?${vsk}&punchType=${punchType}&groupId=${groupId}`;
+        console.log(savePunchUrl);
+        // await axiosInstance.get(savePunchUrl); //DESCOMENTAR PARA REGISTRAR PUNCH
+        // page.reload();
+      }
+    } else {
+      console.log('Token not found.');
+    }
+  } catch (error) {
+    console.log('Failed', error);
+  } finally {
+    //await browser.close();
   }
-  //await browser.close();
 })();
 
 const delay = (milliseconds) =>
