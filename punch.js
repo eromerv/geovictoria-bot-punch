@@ -2,7 +2,7 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const axios = require('axios');
 const axiosRetry = require('axios-retry');
-const isWeekday = require('./util/isWeekday');
+const checkCurrentDate = require('./util/date');
 
 // Axios instance
 const axiosInstance = axios.create({
@@ -16,13 +16,11 @@ axiosRetry(axiosInstance, {
     return retryCount * 1000;
   },
   retryCondition: (error) => {
-    //1: Check if response.data is undefined
+    // 1: Check if response.data is undefined
     const isDataUndefined = error.response && error.response.data === undefined;
-
-    //2: Check for 5xx server errors
+    // 2: Check for 5xx server errors
     const isServerError = error.response && error.response.status >= 500;
-
-    //3: Check for network errors
+    // 3: Check for network errors
     const isNetworkError = !error.response;
 
     return isDataUndefined || isServerError || isNetworkError;
@@ -32,9 +30,8 @@ axiosRetry(axiosInstance, {
 // Main
 (async () => {
   try {
-    if (!isWeekday()) {
-      throw new Error('The current day is not a weekday!');
-    }
+
+    await checkCurrentDate()
 
     const browser = await puppeteer.launch({
       headless: false,
@@ -61,7 +58,7 @@ axiosRetry(axiosInstance, {
     const frame = page.frames().find((frame) => frame.name() == 'myFrame');
 
     if (!frame) {
-      console.error('Frame not found.');
+      console.error('Frame not found');
       await browser.close();
       return;
     }
@@ -80,9 +77,10 @@ axiosRetry(axiosInstance, {
         console.log(savePunchUrl);
         // await axiosInstance.get(savePunchUrl); //DESCOMENTAR PARA REGISTRAR PUNCH
         // page.reload();
+        console.log('Success');
       }
     } else {
-      console.log('Token not found.');
+      console.log('Token not found');
     }
   } catch (error) {
     console.log('Failed', error);
