@@ -2,6 +2,7 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const axios = require('axios');
 const axiosRetry = require('axios-retry');
+const isWeekday = require('./util/isWeekday');
 
 // Axios instance
 const axiosInstance = axios.create({
@@ -30,13 +31,21 @@ axiosRetry(axiosInstance, {
 
 // Main
 (async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=800,600'],
-    defaultViewport: null,
-  });
-
   try {
+    if (!isWeekday()) {
+      throw new Error('The current day is not a weekday!');
+    }
+
+    const browser = await puppeteer.launch({
+      headless: false,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--window-size=800,600',
+      ],
+      defaultViewport: null,
+    });
+
     const page = await browser.newPage();
     await page.goto(process.env.LOGIN_PAGE_URL);
 
