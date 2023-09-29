@@ -30,8 +30,7 @@ axiosRetry(axiosInstance, {
 // Main
 (async () => {
   try {
-
-    await checkCurrentDate()
+    await checkCurrentDate();
 
     const browser = await puppeteer.launch({
       headless: false,
@@ -75,9 +74,9 @@ axiosRetry(axiosInstance, {
         var punchType = lastPunchType === 'Salida' ? 'Ingreso' : 'Salida';
         var savePunchUrl = `/SaveUserPunch?${vsk}&punchType=${punchType}&groupId=${groupId}`;
         console.log(savePunchUrl);
-        // await axiosInstance.get(savePunchUrl); //DESCOMENTAR PARA REGISTRAR PUNCH
+        // const punchResponse = await axiosInstance.get(savePunchUrl);
         // page.reload();
-        console.log('Success');
+        // console.log('Success:', punchResponse.data);
       }
     } else {
       console.log('Token not found');
