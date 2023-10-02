@@ -24,7 +24,7 @@ page.load()
 ```
 
 
-#### Feriados
+### Feriados
 
 El script verifica si el día actual es laboral (lunes a viernes) y consulta la API de feriados de Chile para identificar feriados. Estas comprobaciones permiten automatizar el proceso mediante un cron.
 
