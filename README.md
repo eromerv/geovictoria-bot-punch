@@ -26,11 +26,29 @@ page.load()
 
 #### Feriados
 
-El script actual verifica si el día actual es un día laborable, tomando en cuenta de lunes a viernes. Adicionalmente, se conecta con la API de feriados de Chile para determinar si dicho día es un feriado. Estas validaciones facilitan la automatización del proceso mediante un `cron`.
+El script verifica si el día actual es laboral (lunes a viernes) y consulta la API de feriados de Chile para identificar feriados. Estas comprobaciones permiten automatizar el proceso mediante un cron.
 
 ```js
 async checkCurrentDate()
 ```
+
+### Configurar Cron
+A continuación se explica cómo configurar una tarea cron en macOS:
+
+1. Abrir terminal.
+2. Ingrese el siguiente comando en la terminal: `crontab -e`
+3. Editar crontab: 
+
+```bash
+# Configurar Ingreso (L-V a las 8:45 AM)
+45 8 * * 1-5 /path/to/script.sh
+
+# Configurar Salida (L-V a las 17:00 PM)
+0 17 * * 1-5 /path/to/script.sh
+```
+4. Guardar y Salir. 🥸
+
+> Dentro de este repositorio, encontrarás un ejemplo de script.sh que te ayudará a automatizar tu registro de marcajes.
 
 ### How to Run
 
