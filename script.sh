@@ -8,10 +8,11 @@ export GEO_PASSWORD=""
 # Editar según tus preferencias/configuraciones.
 NODE="/Users/<user>/.nvm/versions/node/v19.7.0/bin/node"
 PUNCH_DIR="/Users/<user>/Tasks/Punch"
-LOG_OUTPUT="${TASK_DIR}/output.log"
+LOG_OUTPUT="${PUNCH_DIR}/logs/output.log"
 
 # Para registrar el resultado de la ejecución, asegúrate de contar con los permisos de escritura necesarios.
 #"${NODE}" "${PUNCH_DIR}/punch.js" >> "${LOG_OUTPUT}" 2>&1
 
+# Ejecutar sin loggear resultado de la ejecución.
 "${NODE}" "${PUNCH_DIR}/punch.js"
 
