@@ -1,2 +1,8 @@
+# export VISUAL="code --wait"
+# export VISUAL="nano"
+# echo 'export VISUAL="nano"' >> ~/.zshrc
+# source ~/.zshrc
+
+
 45 8 * * 1-5 /path/to/script.sh
 0 17 * * 1-5 /path/to/script.sh
